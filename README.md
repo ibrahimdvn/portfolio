@@ -15,30 +15,6 @@ Proje ve araştırma içerikleri merkezi MySQL veritabanında tutulur. Tarayıc�
 - Node.js 20.6 veya üzeri
 - Docker Desktop ve Docker Compose
 
-## İlk kurulum
-
-1. Proje klasöründe `.env.example` dosyasını `.env` adıyla kopyala.
-2. `.env` içindeki `DB_PASSWORD` ve `MYSQL_ROOT_PASSWORD` alanlarına birbirinden farklı, güçlü parolalar yaz. `DB_HOST`, `DB_PORT` ve `DB_NAME` değerlerini kullanacağın MySQL ortamına göre ayarla.
-3. MySQL'i başlat:
-
-   ```powershell
-   docker compose up -d
-   ```
-
-4. Bağımlılıkları kur:
-
-   ```powershell
-   npm install
-   ```
-
-5. Site sunucusunu başlat ve `http://localhost:3000` adresini aç:
-
-   ```powershell
-   npm start
-   ```
-
-Site gerekli MySQL tablolarını otomatik oluşturur. SQL şeması ayrıca `schema.sql` dosyasındadır.
-
 ## Komutlar
 
 ```powershell
