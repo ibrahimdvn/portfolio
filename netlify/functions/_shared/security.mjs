@@ -141,4 +141,3 @@ export async function recordLoginFailure(ipHash) {
 export async function clearLoginFailures(ipHash) {
   await getDb().pool.query("DELETE FROM admin_login_attempts WHERE ip_hash = $1", [ipHash]);
 }
-
