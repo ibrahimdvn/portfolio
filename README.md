@@ -33,10 +33,6 @@ docker compose stop
 
 `docker-compose.yml` içindeki `name: elsewhere` değerini değiştirme; mevcut Docker veri volume'unun adını sabit tutar. MySQL verileri `mysql-data` adlı kalıcı Docker volume'unda saklanır.
 
-## Yayına alma
-
-Statik dosya yükleme tek başına yeterli değildir. Yayında Node.js sunucusu/API ve MySQL veritabanı aynı uygulama altyapısında veya birbirine güvenli biçimde erişebilen sunucularda çalışmalıdır. HTTPS kullan; üretim ortamında `NODE_ENV=production` ayarla ve MySQL bağlantı bilgilerini barındırma ortamının gizli değişkenleri olarak tanımla. Yerel `.env` değerlerini kaynak koda ekleme.
-
 ## Yedekleme
 
 İçerik veritabanını düzenli olarak yedekle ve yedek dosyalarını güvenli bir yerde sakla.

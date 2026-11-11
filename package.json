@@ -6,10 +6,9 @@
     "node": ">=20.6"
   },
   "scripts": {
-    "start": "node src/server.js"
+    "start": "node --env-file=.env server.js"
   },
   "dependencies": {
-    "dotenv": "^18.0.10",
     "mysql2": "^3.24.6"
   }
 }
