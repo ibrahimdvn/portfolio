@@ -13,6 +13,11 @@ const SESSION_COOKIE = "icd_admin_session";
 const SESSION_TTL_MS = 30 * 60 * 1000;
 const sessions = new Map();
 const loginAttempts = new Map();
+const PUBLIC_FILES = new Set([
+  "app.js", "auth.js", "detay.html", "favicon.svg", "giris.html", "giris.js",
+  "i18n.js", "index.html", "logo.svg", "profile-photo.png", "styles.css",
+  "ui.js", "yonetim.html", "yonetim.js"
+]);
 const MIME_TYPES = {
   ".html": "text/html; charset=utf-8",
   ".css": "text/css; charset=utf-8",
@@ -21,7 +26,6 @@ const MIME_TYPES = {
   ".png": "image/png",
   ".json": "application/json; charset=utf-8"
 };
-const PRIVATE_FILES = new Set(["server.js", "package.json", "security.md", "recovered-content.json"]);
 function sendJson(response, status, data, extraHeaders) {
   response.writeHead(status, Object.assign({
     "Content-Type": "application/json; charset=utf-8",
@@ -60,6 +64,12 @@ function sameOrigin(request) {
 
 function attemptState(ip) {
   const now = Date.now();
+  if (loginAttempts.size >= 10000 && !loginAttempts.has(ip)) {
+    for (const [key, value] of loginAttempts) {
+      if (value.resetAt <= now && value.blockedUntil <= now) loginAttempts.delete(key);
+    }
+    while (loginAttempts.size >= 10000) loginAttempts.delete(loginAttempts.keys().next().value);
+  }
   let state = loginAttempts.get(ip);
   if (!state || state.resetAt <= now) {
     state = { count: 0, resetAt: now + 15 * 60 * 1000, blockedUntil: 0 };
@@ -89,7 +99,7 @@ function serveFile(request, response, pathname) {
   }
   const filename = path.basename(filePath).toLowerCase();
   const relativeParts = path.relative(ROOT, filePath).split(path.sep);
-  if (filename.startsWith(".") || PRIVATE_FILES.has(filename) || relativeParts[0].toLowerCase() === "data") {
+  if (filename.startsWith(".") || relativeParts.length !== 1 || !PUBLIC_FILES.has(filename)) {
     response.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
     response.end("Not found");
     return;
@@ -164,6 +174,12 @@ const server = http.createServer(async function (request, response) {
     catch (error) { sendJson(response, 400, { message: "Giriş bilgileri okunamadı." }); return; }
     const username = typeof body.username === "string" ? body.username.trim() : "";
     const password = typeof body.password === "string" ? body.password : "";
+    if (username.length > 64 || password.length > 1024) {
+      state.count += 1;
+      if (state.count >= 5) state.blockedUntil = Date.now() + 15 * 60 * 1000;
+      sendJson(response, state.blockedUntil ? 429 : 401, { message: "Kullanıcı adı veya şifre hatalı. Yeniden dene." });
+      return;
+    }
     let valid = false;
     try { valid = await database.verifyAdmin(username, password); }
     catch (error) { sendJson(response, 503, { message: "Giriş veritabanına erişilemedi." }); return; }

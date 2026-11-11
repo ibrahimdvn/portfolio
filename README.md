@@ -6,10 +6,9 @@ Teknoloji, bilim ve insan üzerine merakla düşünen İbrahim Can Düven'in ki�
 
 - Node.js ile çalışan web sunucusu ve API
 - MySQL 8.4 veritabanı
-- Yönetim panelinde proje ve araştırma yazısı ekleme, düzenleme, silme ve yedekleme
 - Duyarlı tasarım ve Türkçe/İngilizce arayüz
 
-Proje ve araştırma içerikleri merkezi MySQL veritabanında tutulur. Tarayıcı, içerikleri `/api/content` uç noktasından alır. Yönetim panelindeki kaydetme işlemleri bu veritabanına yazılır; tarayıcılar arasında ortak içerik için Node.js sunucusunun ve MySQL'in erişilebilir olması gerekir.
+Proje ve araştırma içerikleri merkezi MySQL veritabanında tutulur. Tarayıcı, yayımlanan içerikleri uygulama sunucusundan alır. Sunucu ve MySQL erişilebilir olmalıdır.
 
 ## Gereksinimler
 
@@ -32,21 +31,13 @@ Proje ve araştırma içerikleri merkezi MySQL veritabanında tutulur. Tarayıc�
    npm install
    ```
 
-5. Yönetici hesabını yerel terminalde oluştur. Kullanıcı adı sorulur; parola gizli biçimde girilir ve yalnızca MySQL'de hash olarak saklanır:
-
-   ```powershell
-   npm run admin:create
-   ```
-
-6. Site sunucusunu başlat ve `http://localhost:3000` adresini aç:
+5. Site sunucusunu başlat ve `http://localhost:3000` adresini aç:
 
    ```powershell
    npm start
    ```
 
-Yönetim ekranına sitenin altındaki **İçerik yönetimi** bağlantısından ulaş. Yönetici hesabı bilgilerini kaynak koduna, `.env.example` dosyasına veya GitHub'a ekleme.
-
-Site, `site_content` ve `admin_credentials` tablolarını otomatik oluşturur. SQL şeması ayrıca `schema.sql` dosyasındadır.
+Site gerekli MySQL tablolarını otomatik oluşturur. SQL şeması ayrıca `schema.sql` dosyasındadır.
 
 ## Komutlar
 
@@ -66,18 +57,10 @@ docker compose stop
 
 `docker-compose.yml` içindeki `name: elsewhere` değerini değiştirme; mevcut Docker veri volume'unun adını sabit tutar. MySQL verileri `mysql-data` adlı kalıcı Docker volume'unda saklanır.
 
-## Yönetim ve oturum güvenliği
-
-- Yönetici parolası düz metin olarak saklanmaz; salt eklenmiş scrypt hash kullanılır.
-- Giriş denemeleri IP adresine göre sınırlandırılır.
-- Bir seferde tek yönetici oturumu açık kalır. Yeni başarılı giriş önceki cihazdaki oturumu geçersiz kılar.
-- Oturum 30 dakika sonra sona erer; açık yönetim ekranı oturumu 10 saniyede bir doğrular.
-- `.env` dosyasını ve veritabanı parolalarını Git'e veya herkese açık depolara ekleme.
-
 ## Yayına alma
 
 Statik dosya yükleme tek başına yeterli değildir. Yayında Node.js sunucusu/API ve MySQL veritabanı aynı uygulama altyapısında veya birbirine güvenli biçimde erişebilen sunucularda çalışmalıdır. HTTPS kullan; üretim ortamında `NODE_ENV=production` ayarla ve MySQL bağlantı bilgilerini barındırma ortamının gizli değişkenleri olarak tanımla. Yerel `.env` değerlerini kaynak koda ekleme.
 
 ## Yedekleme
 
-Yönetim panelindeki **Yedekle** düğmesi projeleri ve araştırma yazılarını JSON olarak indirir. Bu dosyayı güvenli bir yerde sakla; **Yedeği içe aktar** ile geri yükleyebilirsin.
+İçerik veritabanını düzenli olarak yedekle ve yedek dosyalarını güvenli bir yerde sakla.

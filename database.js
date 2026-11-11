@@ -4,6 +4,8 @@ const mysql = require("mysql2/promise");
 const crypto = require("node:crypto");
 const { promisify } = require("node:util");
 const scrypt = promisify(crypto.scrypt);
+const DUMMY_SALT = crypto.randomBytes(16);
+const DUMMY_HASH = crypto.randomBytes(64);
 
 const required = ["DB_HOST", "DB_USER", "DB_PASSWORD", "DB_NAME"];
 const missing = required.filter((key) => !process.env[key]);
@@ -65,11 +67,10 @@ async function hasAdmin() {
 
 async function verifyAdmin(username, password) {
   const [rows] = await pool.execute("SELECT password_salt, password_hash FROM admin_credentials WHERE username = ? LIMIT 1", [username.trim()]);
-  if (!rows.length) return false;
-  const salt = Buffer.from(rows[0].password_salt, "hex");
-  const stored = Buffer.from(rows[0].password_hash, "hex");
+  const salt = rows.length ? Buffer.from(rows[0].password_salt, "hex") : DUMMY_SALT;
+  const stored = rows.length ? Buffer.from(rows[0].password_hash, "hex") : DUMMY_HASH;
   const submitted = await scrypt(password, salt, stored.length, { N: 16384, r: 8, p: 1, maxmem: 64 * 1024 * 1024 });
-  return stored.length === submitted.length && crypto.timingSafeEqual(stored, submitted);
+  return rows.length > 0 && stored.length === submitted.length && crypto.timingSafeEqual(stored, submitted);
 }
 
 module.exports = { initialize, getContent, saveContent, createAdmin, hasAdmin, verifyAdmin, close: () => pool.end() };
