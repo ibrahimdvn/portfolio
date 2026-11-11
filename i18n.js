@@ -128,7 +128,7 @@
     "İçerik yönetimi": "Content management",
     "İngilizce çeviriler ": "English translations ",
     "İngilizce çeviriler": "English translations",
-    "Projeleri ve araştırma notlarını buradan ekleyip düzenleyebilirsin. Değişiklikler merkezi MySQL veritabanına kaydedilir.": "Add and edit projects and research notes here. Changes are saved to the central MySQL database.",
+    "Projeleri ve araştırma notlarını buradan ekleyip düzenleyebilirsin. Değişiklikler merkezi PostgreSQL veritabanına kaydedilir.": "Add and edit projects and research notes here. Changes are saved to the central PostgreSQL database.",
     "Statik site notu": "About this static site",
     "Bu sürümde içerikler yalnızca düzenleme yaptığın tarayıcıda görünür; ziyaretçilere otomatik yayımlanmaz. Yedekle ile JSON dosyası indirip içeriğini saklayabilirsin. Herkese açık ortak yayın için sunucu tabanlı bir CMS veya depolama hizmeti gerekir.": "In this version, changes are stored only in this browser and are not published to visitors. Use Backup to download a JSON copy. Publishing shared content requires a server-based CMS or storage service.",
     "Çalışmalar": "WORK",

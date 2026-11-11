@@ -2,37 +2,32 @@
 
 Teknoloji, bilim ve insan üzerine merakla düşünen İbrahim Can Düven'in kişisel sitesi. Projeler, araştırma yazıları ve öğrenme yolculuğu bu sitede yer alır.
 
-## Teknoloji
+## Altyapı
 
-- Node.js ile çalışan web sunucusu ve API
-- MySQL 8.4 veritabanı
-- Duyarlı tasarım ve Türkçe/İngilizce arayüz
+- Netlify üzerinde statik site ve serverless Functions
+- Netlify Database üzerinden PostgreSQL
+- İçerik ve yönetici oturumları merkezi veritabanında saklanır
 
-Proje ve araştırma içerikleri merkezi MySQL veritabanında tutulur. Tarayıcı, yayımlanan içerikleri uygulama sunucusundan alır. Sunucu ve MySQL erişilebilir olmalıdır.
+Netlify dağıtımı için Netlify Database etkinleştirilmiş, veritabanı bağlantısı projeye bağlanmış olmalıdır. `netlify/database/migrations/` altındaki SQL geçişi proje ilk kez bağlandığında gerekli tabloları ve mevcut herkese açık site içeriğini oluşturur. Yönetici parolası depoya eklenmez; yönetici bilgileri yalnızca Netlify proje ortam değişkenlerinde tutulur.
 
-## Gereksinimler
+## Yerel geliştirme
 
-- Node.js 20.6 veya üzeri
-- Docker Desktop ve Docker Compose
+Node.js 22.12 veya üzeri gerekir.
 
-## Komutlar
-
-```powershell
-# MySQL servisini başlat
-docker compose up -d
-
-# MySQL durumunu görüntüle
-docker compose ps
-
-# Web uygulamasını başlat
-npm start
-
-# MySQL servisini durdur (veriler kalıcı volume'da korunur)
-docker compose stop
+```sh
+npm install
+npm run build
+npm run dev
 ```
 
-`docker-compose.yml` içindeki `name: elsewhere` değerini değiştirme; mevcut Docker veri volume'unun adını sabit tutar. MySQL verileri `mysql-data` adlı kalıcı Docker volume'unda saklanır.
+`npm run dev`, Netlify CLI üzerinden siteyi, Functions uç noktalarını ve yerel PostgreSQL ortamını çalıştırır. Yerel veritabanı üretim veritabanından ayrıdır.
 
-## Yedekleme
+## Dağıtım
 
-İçerik veritabanını düzenli olarak yedekle ve yedek dosyalarını güvenli bir yerde sakla.
+Netlify projesini GitHub deposuna bağla. `netlify.toml` derleme komutunu ve yayın klasörünü tanımlar. Derleme, sadece tarayıcıda kullanılması gereken izinli site dosyalarını `dist/` içine kopyalar; sunucu kodu, SQL geçişleri, dokümantasyon ve ortam dosyaları statik olarak yayınlanmaz.
+
+Netlify Functions `netlify/functions/` dizininden `/api/content`, `/api/login`, `/api/session` ve `/api/logout` yollarına sunulur. `netlify/database/migrations/` altındaki geçişler PostgreSQL şemasını kurar ve mevcut site içeriklerini başlangıç verisi olarak ekler. Yönetici parolası/veritabanı bağlantısı gizli değerlerini GitHub'a koyma.
+
+## İçerik yedeği
+
+Yönetim ekranından eklenen veya düzenlenen içerikler merkezi PostgreSQL veritabanına yazılır. Veritabanı için Netlify Database'in desteklediği dışa aktarma/yedekleme yöntemlerini düzenli kullan.

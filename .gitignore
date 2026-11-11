@@ -1,6 +1,5 @@
 .env
 .env.*
 node_modules/
-mysql-data/
-.dist/
-/scripts/create-admin.js
+dist/
+.netlify/

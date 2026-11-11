@@ -131,7 +131,7 @@
     renderNotes(content.notes);
     renderDetail(content);
   }).catch(function (error) {
-    console.error("MySQL içeriği alınamadı.", error);
+    console.error("Veritabanı içeriği alınamadı.", error);
     const projectList = document.getElementById("project-list");
     const noteList = document.getElementById("note-list");
     if (projectList) projectList.innerHTML = '<p class="empty-state">İçerik veritabanına şu anda ulaşılamıyor.</p>';
