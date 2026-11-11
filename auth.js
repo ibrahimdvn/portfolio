@@ -12,7 +12,7 @@
       try { body = await response.json(); } catch (error) { /* Empty response body. */ }
       return { ok: response.ok, status: response.status, body: body };
     } catch (error) {
-      return { ok: false, status: 0, body: { message: "Sunucuya bağlanılamadı. Siteyi güvenli sunucu üzerinden aç." } };
+      return { ok: false, status: 0, body: { message: "Giriş servisine ulaşılamadı. Netlify Functions dağıtımını kontrol et." } };
     }
   }
 

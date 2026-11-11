@@ -1,5 +1,5 @@
-import { getDb } from "./_shared/database.mjs";
-import { json, sessionIsValid, sameOrigin } from "./_shared/security.mjs";
+import { getDb } from "../lib/database.mjs";
+import { json, sessionIsValid, sameOrigin } from "../lib/security.mjs";
 
 export const config = { path: "/api/content" };
 

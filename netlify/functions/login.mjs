@@ -1,7 +1,7 @@
 import {
   clearLoginFailures, clientIp, createSession, ensureAdmin, getLoginThrottle, hashIp,
   json, recordLoginFailure, sameOrigin, verifyAdmin
-} from "./_shared/security.mjs";
+} from "../lib/security.mjs";
 
 export const config = { path: "/api/login" };
 

@@ -1,4 +1,4 @@
-import { clearSession, json, sameOrigin } from "./_shared/security.mjs";
+import { clearSession, json, sameOrigin } from "../lib/security.mjs";
 
 export const config = { path: "/api/logout" };
 

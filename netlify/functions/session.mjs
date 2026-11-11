@@ -1,4 +1,4 @@
-import { json, sessionIsValid } from "./_shared/security.mjs";
+import { json, sessionIsValid } from "../lib/security.mjs";
 
 export const config = { path: "/api/session" };
 
