@@ -1,5 +1,7 @@
 "use strict";
 
+require("dotenv").config();
+
 const http = require("node:http");
 const fs = require("node:fs");
 const path = require("node:path");

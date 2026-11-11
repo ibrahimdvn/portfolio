@@ -7,18 +7,20 @@ const scrypt = promisify(crypto.scrypt);
 const DUMMY_SALT = crypto.randomBytes(16);
 const DUMMY_HASH = crypto.randomBytes(64);
 
-const required = ["DB_HOST", "DB_USER", "DB_PASSWORD", "DB_NAME"];
-const missing = required.filter((key) => !process.env[key]);
+const dbConfig = {
+  host: process.env.DB_HOST || process.env.MYSQLHOST,
+  port: Number(process.env.DB_PORT || process.env.MYSQLPORT || 3306),
+  user: process.env.DB_USER || process.env.MYSQLUSER,
+  password: process.env.DB_PASSWORD || process.env.MYSQLPASSWORD,
+  database: process.env.DB_NAME || process.env.MYSQLDATABASE
+};
+const missing = Object.entries(dbConfig).filter(([key, value]) => key !== "port" && !value).map(([key]) => key);
 if (missing.length) {
-  throw new Error("MySQL ayarları eksik: " + missing.join(", ") + ". .env dosyasındaki DB_* alanlarını doldur.");
+  throw new Error("MySQL bağlantı değişkenleri eksik: " + missing.join(", ") + ". DB_* veya Railway MYSQL* değişkenlerini yapılandır.");
 }
 
 const pool = mysql.createPool({
-  host: process.env.DB_HOST,
-  port: Number(process.env.DB_PORT || 3306),
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+  ...dbConfig,
   waitForConnections: true,
   connectionLimit: Number(process.env.DB_CONNECTION_LIMIT || 5),
   queueLimit: 20,
