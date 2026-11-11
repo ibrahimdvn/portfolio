@@ -7,16 +7,33 @@ const scrypt = promisify(crypto.scrypt);
 const DUMMY_SALT = crypto.randomBytes(16);
 const DUMMY_HASH = crypto.randomBytes(64);
 
+const mysqlUrl = process.env.MYSQL_URL || process.env.DATABASE_URL;
+let urlConfig = {};
+if (mysqlUrl) {
+  try {
+    const parsed = new URL(mysqlUrl);
+    if (parsed.protocol !== "mysql:") throw new Error("Unsupported protocol");
+    urlConfig = {
+      host: parsed.hostname,
+      port: parsed.port ? Number(parsed.port) : 3306,
+      user: decodeURIComponent(parsed.username),
+      password: decodeURIComponent(parsed.password),
+      database: decodeURIComponent(parsed.pathname.replace(/^\//, ""))
+    };
+  } catch {
+    throw new Error("MYSQL_URL veya DATABASE_URL geçerli bir MySQL bağlantı adresi değil.");
+  }
+}
 const dbConfig = {
-  host: process.env.DB_HOST || process.env.MYSQLHOST,
-  port: Number(process.env.DB_PORT || process.env.MYSQLPORT || 3306),
-  user: process.env.DB_USER || process.env.MYSQLUSER,
-  password: process.env.DB_PASSWORD || process.env.MYSQLPASSWORD,
-  database: process.env.DB_NAME || process.env.MYSQLDATABASE
+  host: process.env.DB_HOST || process.env.MYSQLHOST || urlConfig.host,
+  port: Number(process.env.DB_PORT || process.env.MYSQLPORT || urlConfig.port || 3306),
+  user: process.env.DB_USER || process.env.MYSQLUSER || urlConfig.user,
+  password: process.env.DB_PASSWORD || process.env.MYSQLPASSWORD || urlConfig.password,
+  database: process.env.DB_NAME || process.env.MYSQLDATABASE || urlConfig.database
 };
 const missing = Object.entries(dbConfig).filter(([key, value]) => key !== "port" && !value).map(([key]) => key);
 if (missing.length) {
-  throw new Error("MySQL bağlantı değişkenleri eksik: " + missing.join(", ") + ". DB_* veya Railway MYSQL* değişkenlerini yapılandır.");
+  throw new Error("MySQL bağlantı değişkenleri eksik: " + missing.join(", ") + ". Railway'de MYSQL_URL ya da MYSQLHOST, MYSQLPORT, MYSQLUSER, MYSQLPASSWORD ve MYSQLDATABASE değerlerini uygulama servisine bağla.");
 }
 
 const pool = mysql.createPool({
