@@ -20,22 +20,31 @@ Proje ve araştırma içerikleri merkezi MySQL veritabanında tutulur. Tarayıc�
 
 1. Proje klasöründe `.env.example` dosyasını `.env` adıyla kopyala.
 2. `.env` içindeki `DB_PASSWORD` ve `MYSQL_ROOT_PASSWORD` alanlarına birbirinden farklı, güçlü parolalar yaz. `DB_HOST`, `DB_PORT` ve `DB_NAME` değerlerini kullanacağın MySQL ortamına göre ayarla.
-3. İlk yönetici hesabı için `ADMIN_USERNAME` ve `ADMIN_PASSWORD` alanlarını doldur. Bu değerler yalnızca veritabanında ilk yönetici hesabı oluşturulurken kullanılır.
-4. MySQL'i başlat:
+3. MySQL'i başlat:
 
    ```powershell
    docker compose up -d
    ```
 
-5. Site sunucusunu başlat:
+4. Bağımlılıkları kur:
 
    ```powershell
    npm install
+   ```
+
+5. Yönetici hesabını yerel terminalde oluştur. Kullanıcı adı sorulur; parola gizli biçimde girilir ve yalnızca MySQL'de hash olarak saklanır:
+
+   ```powershell
+   npm run admin:create
+   ```
+
+6. Site sunucusunu başlat ve `http://localhost:3000` adresini aç:
+
+   ```powershell
    npm start
    ```
 
-6. Siteyi `http://localhost:3000` adresinde aç. Yönetim ekranına sitenin altındaki **İçerik yönetimi** bağlantısından ulaş.
-7. İlk başarılı başlatmadan sonra `.env` dosyasındaki `ADMIN_USERNAME` ve `ADMIN_PASSWORD` satırlarını sil. Parola veritabanında salt eklenmiş scrypt hash olarak saklanır.
+Yönetim ekranına sitenin altındaki **İçerik yönetimi** bağlantısından ulaş. Yönetici hesabı bilgilerini kaynak koduna, `.env.example` dosyasına veya GitHub'a ekleme.
 
 Site, `site_content` ve `admin_credentials` tablolarını otomatik oluşturur. SQL şeması ayrıca `schema.sql` dosyasındadır.
 

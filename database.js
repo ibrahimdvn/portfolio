@@ -38,10 +38,6 @@ async function initialize() {
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
   ) ENGINE=InnoDB`);
 
-  if (process.env.ADMIN_USERNAME && process.env.ADMIN_PASSWORD) {
-    const [rows] = await pool.query("SELECT username FROM admin_credentials LIMIT 1");
-    if (!rows.length) await createAdmin(process.env.ADMIN_USERNAME, process.env.ADMIN_PASSWORD);
-  }
 }
 
 async function getContent() {
@@ -62,6 +58,11 @@ async function createAdmin(username, password) {
     [username.trim(), salt.toString("hex"), hash.toString("hex")]);
 }
 
+async function hasAdmin() {
+  const [rows] = await pool.query("SELECT username FROM admin_credentials LIMIT 1");
+  return rows.length > 0;
+}
+
 async function verifyAdmin(username, password) {
   const [rows] = await pool.execute("SELECT password_salt, password_hash FROM admin_credentials WHERE username = ? LIMIT 1", [username.trim()]);
   if (!rows.length) return false;
@@ -71,4 +72,4 @@ async function verifyAdmin(username, password) {
   return stored.length === submitted.length && crypto.timingSafeEqual(stored, submitted);
 }
 
-module.exports = { initialize, getContent, saveContent, verifyAdmin, close: () => pool.end() };
+module.exports = { initialize, getContent, saveContent, createAdmin, hasAdmin, verifyAdmin, close: () => pool.end() };

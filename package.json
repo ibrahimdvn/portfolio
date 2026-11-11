@@ -6,7 +6,8 @@
     "node": ">=20.6"
   },
   "scripts": {
-    "start": "node --env-file=.env server.js"
+    "start": "node --env-file=.env server.js",
+    "admin:create": "node --env-file=.env scripts/create-admin.js"
   },
   "dependencies": {
     "mysql2": "^3.24.6"
