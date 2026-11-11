@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-labelledby="title desc">
+  <title id="title">İbrahim Can Düven monogramı</title>
+  <desc id="desc">Koyu zemin üzerinde açık mavi gri I, C ve D harflerinden oluşan geometrik monogram.</desc>
+  <rect x="1" y="1" width="94" height="94" fill="#111214" stroke="#303136" stroke-width="2"/>
+  <path d="M27 20h13v56H27z" fill="#a8b6c5"/>
+  <path d="M73 25c-5-4-10-6-16-6-16 0-26 12-26 29s10 29 26 29c6 0 11-2 16-6V58c-4 5-9 8-15 8-9 0-14-7-14-18s5-18 14-18c6 0 11 3 15 8z" fill="#eaeaea" transform="translate(5 0)"/>
+  <path d="M49 34h11c8 0 13 5 13 14s-5 14-13 14H49z" fill="none" stroke="#a8b6c5" stroke-width="3"/>
+  <path d="M77 8v11m0-11h11" fill="none" stroke="#a8b6c5" stroke-width="2"/>
+</svg>

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111214">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="apple-touch-icon" href="logo.svg">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Yönetici girişi — İbrahim Can Düven</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="ui.js" defer></script>
+  <script src="auth.js" defer></script>
+  <script src="giris.js" defer></script>
+</head>
+<body class="login-body">
+  <a class="skip-link" href="#login-title">Giriş formuna geç</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="wordmark" href="index.html"><img class="brand-mark" src="logo.svg" alt="">İBRAHİM CAN DÜVEN<span class="wordmark-period">.</span></a>
+      <a class="admin-back-link" href="index.html">Siteye dön <span aria-hidden="true">↗</span></a>
+    </div>
+  </header>
+  <main class="login-main section-shell">
+    <div class="login-aside">
+      <p class="section-kicker">ÖZEL ALAN <span>/</span> 01</p>
+      <h1>İçeriğin<br><em>mutfağı.</em></h1>
+      <p>Projeleri ve araştırma notlarını düzenlemek için yönetici hesabınla giriş yap.</p>
+      <span class="login-aside-mark" aria-hidden="true">İCD<span>.</span></span>
+    </div>
+    <section class="login-card" aria-labelledby="login-title">
+      <p class="section-kicker">İÇERİK YÖNETİMİ <span>/</span> GİRİŞ</p>
+      <h2 id="login-title">Tekrar merhaba.</h2>
+      <p class="login-intro">Devam etmek için giriş bilgilerini yaz.</p>
+      <form id="login-form" class="login-form">
+        <label for="username">Kullanıcı adı</label>
+        <input id="username" name="username" autocomplete="username" required autofocus>
+        <label for="password">Şifre</label>
+        <div class="password-field"><input id="password" name="password" type="password" autocomplete="current-password" required><button type="button" id="toggle-password" aria-label="Şifreyi göster">Göster</button></div>
+        <p id="login-error" class="login-error" role="alert" hidden>Kullanıcı adı veya şifre hatalı. Yeniden dene.</p>
+        <button class="button button-primary login-submit" type="submit">Giriş yap <span aria-hidden="true">↗</span></button>
+      </form>
+      <p class="login-footnote">Oturum güvenlik için 30 dakika sonra sona erer.</p>
+    </section>
+  </main>
+  <footer class="login-footer section-shell"><span>© 2026 İbrahim Can Düven</span><span>YÖNETİCİ ERİŞİMİ</span></footer>
+</body>
+</html>

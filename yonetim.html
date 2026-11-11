@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111214">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="apple-touch-icon" href="logo.svg">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="Kişisel web sitesi içerik yönetimi.">
+  <title>İçerik Yönetimi — İbrahim Can Düven</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="ui.js" defer></script>
+  <script src="i18n.js" defer></script>
+  <script src="auth.js" defer></script>
+  <script src="yonetim.js" defer></script>
+</head>
+<body class="admin-body">
+  <a class="skip-link" href="#yonetim">İçeriğe geç</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="wordmark" href="index.html"><img class="brand-mark" src="logo.svg" alt="">İBRAHİM CAN DÜVEN<span class="wordmark-period">.</span></a>
+      <div class="admin-header-actions"><button class="admin-logout" type="button" data-logout>Çıkış yap <span aria-hidden="true">↗</span></button><a class="admin-back-link" href="index.html">Siteye dön <span aria-hidden="true">↗</span></a></div>
+      <button class="language-toggle" type="button" data-language-toggle aria-label="Switch language to English" title="Switch language to English">EN</button>
+    </div>
+  </header>
+  <main class="admin-main section-shell" id="yonetim" hidden>
+    <div class="admin-heading">
+      <p class="section-kicker">YÖNETİM <span>/</span> İÇERİK</p>
+      <h1>İçerik yönetimi</h1>
+      <p>Projeleri ve araştırma notlarını buradan ekleyip düzenleyebilirsin. Değişiklikler merkezi MySQL veritabanına kaydedilir.</p>
+    </div>
+    <section class="admin-section" aria-labelledby="projects-admin-title">
+      <div class="admin-section-heading"><div><p class="section-kicker">01 <span>/</span> ÇALIŞMALAR</p><h2 id="projects-admin-title">Projeler</h2></div><button class="button button-secondary" id="new-project" type="button">Yeni proje ekle <span aria-hidden="true">＋</span></button></div>
+      <div id="admin-project-list" class="admin-item-list"></div>
+      <form id="project-form" class="admin-form" hidden>
+        <h3 id="project-form-title">Proje ekle</h3>
+        <input type="hidden" name="originalId">
+        <div class="form-grid">
+          <label>Proje adı<input name="title" required maxlength="100"></label>
+          <label>Alt başlık<input name="subtitle" maxlength="120"></label>
+          <label>Bağlantı kimliği<input name="id" required pattern="[a-z0-9\-]+" title="Küçük İngilizce harfler, rakamlar ve tire kullan." placeholder="Örn. loop" maxlength="60"></label>
+          <label>Kategori<input name="category" maxlength="80" placeholder="Örn. DİJİTAL ÜRÜN FİKRİ"></label>
+          <label>Durum<input name="status" required maxlength="80" placeholder="Örn. Fikir aşamasında"></label>
+          <label><span>Tarih <span class="field-hint">(isteğe bağlı)</span></span><input name="date" maxlength="30"></label>
+          <label class="form-full">Kısa açıklama<textarea name="summary" required rows="2" maxlength="300"></textarea></label>
+          <label class="form-full">Detaylı açıklama<textarea name="description" rows="5"></textarea></label>
+          <label class="form-full">Temel yaklaşım <span class="field-hint">(her satıra bir madde)</span><textarea name="principles" rows="4"></textarea></label>
+          <label class="form-full">Proje / GitHub bağlantısı <span class="field-hint">(isteğe bağlı, https:// ile başlamalı)</span><input name="url" type="url" placeholder="https://github.com/kullanici/proje"></label>
+          <details class="form-full translation-fields">
+            <summary>İngilizce çeviriler <span class="field-hint">(isteğe bağlı)</span></summary>
+            <div class="form-grid">
+              <label>Proje adı<input name="titleEn" maxlength="100"></label>
+              <label>Alt başlık<input name="subtitleEn" maxlength="120"></label>
+              <label>Kategori<input name="categoryEn" maxlength="80"></label>
+              <label>Durum<input name="statusEn" maxlength="80"></label>
+              <label class="form-full">Kısa açıklama<textarea name="summaryEn" rows="2" maxlength="300"></textarea></label>
+              <label class="form-full">Detaylı açıklama<textarea name="descriptionEn" rows="5"></textarea></label>
+              <label class="form-full">Temel yaklaşım <span class="field-hint">(her satıra bir madde)</span><textarea name="principlesEn" rows="4"></textarea></label>
+            </div>
+          </details>
+        </div>
+        <div class="form-actions"><button class="button button-primary" type="submit">Kaydet</button><button class="button button-quiet" data-cancel-form type="button">Vazgeç</button></div>
+      </form>
+    </section>
+    <section class="admin-section" aria-labelledby="notes-admin-title">
+      <div class="admin-section-heading"><div><p class="section-kicker">02 <span>/</span> DİJİTAL ARŞİV</p><h2 id="notes-admin-title">Araştırma notları</h2></div><button class="button button-secondary" id="new-note" type="button">Yeni not ekle <span aria-hidden="true">＋</span></button></div>
+      <div id="admin-note-list" class="admin-item-list"></div>
+      <form id="note-form" class="admin-form" hidden>
+        <h3 id="note-form-title">Not ekle</h3>
+        <input type="hidden" name="originalId">
+        <div class="form-grid">
+          <label>Başlık<input name="title" required maxlength="160"></label>
+          <label>Kategori<select name="category" required>
+            <option value="">Kategori seç</option><option>Bilim ve Teknoloji</option><option>Felsefe ve Psikoloji</option><option>Tarih ve Kültür</option><option>Havacılık ve Astronomi</option><option>Yazılım ve Dijital Dünya</option><option>Diğer</option>
+          </select></label>
+          <input type="hidden" name="id">
+          <label><span>Yayın tarihi <span class="field-hint">(GG.AA.YYYY)</span></span><input name="date" maxlength="20" placeholder="İsteğe bağlı"></label>
+          <label>Okuma süresi<input name="readingTime" maxlength="30" placeholder="Örn. 5 dk okuma"></label>
+          <label class="form-full">Kısa açıklama<textarea name="summary" required rows="2" maxlength="300"></textarea></label>
+          <label class="form-full">Yazı içeriği <span class="field-hint">(paragraflar arasında boş satır bırak)</span><textarea name="body" required rows="10"></textarea></label>
+          <details class="form-full translation-fields">
+            <summary>İngilizce çeviriler <span class="field-hint">(isteğe bağlı)</span></summary>
+            <div class="form-grid">
+              <label>Başlık<input name="titleEn" maxlength="160"></label>
+              <label>Kategori<input name="categoryEn" maxlength="100"></label>
+              <label>Okuma süresi<input name="readingTimeEn" maxlength="30"></label>
+              <label class="form-full">Kısa açıklama<textarea name="summaryEn" rows="2" maxlength="300"></textarea></label>
+              <label class="form-full">Yazı içeriği<textarea name="bodyEn" rows="10"></textarea></label>
+            </div>
+          </details>
+        </div>
+        <div class="form-actions"><button class="button button-primary" type="submit">Kaydet</button><button class="button button-quiet" data-cancel-form type="button">Vazgeç</button></div>
+      </form>
+    </section>
+    <section class="admin-tools" aria-labelledby="backup-title">
+      <div><p class="section-kicker">03 <span>/</span> VERİ</p><h2 id="backup-title">Yedekle ve geri yükle</h2><p>Proje ve notlarını JSON olarak dışa aktar veya daha önce aldığın yedeği içe aktar.</p></div>
+      <div class="backup-actions"><button class="button button-secondary" id="export-content" type="button">Yedekle <span aria-hidden="true">↓</span></button><label class="button button-quiet import-button" for="import-content">Yedeği içe aktar <span aria-hidden="true">↑</span></label><input id="import-content" type="file" accept="application/json,.json" hidden></div>
+    </section>
+    <p class="admin-status" id="admin-status" role="status" aria-live="polite"></p>
+  </main>
+  <footer class="site-footer section-shell"><a class="footer-wordmark" href="index.html"><img class="brand-mark brand-mark-small" src="logo.svg" alt="">İBRAHİM CAN DÜVEN<span class="wordmark-period">.</span></a><span>© 2026 İbrahim Can Düven</span><a href="index.html#iletisim">İletişim <span aria-hidden="true">↗</span></a></footer>
+</body>
+</html>

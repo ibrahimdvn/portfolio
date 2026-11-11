@@ -1,0 +1,14 @@
+{
+  "name": "ibrahim-can-duven-site",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=20.6"
+  },
+  "scripts": {
+    "start": "node --env-file=.env server.js"
+  },
+  "dependencies": {
+    "mysql2": "^3.24.6"
+  }
+}
