@@ -17,10 +17,11 @@ Node.js 22.12 veya üzeri gerekir.
 ```sh
 npm install
 npm run build
-npm run dev
+docker compose up -d
+npm start
 ```
 
-`npm run dev`, Netlify CLI üzerinden siteyi, Functions uç noktalarını ve yerel PostgreSQL ortamını çalıştırır. Yerel veritabanı üretim veritabanından ayrıdır.
+Yerel site `http://localhost:3000` adresinde açılır. PostgreSQL bağlantısı ve yönetici hesabı `.env` dosyasından okunur; gizli değerleri depoya ekleme. Yerel PostgreSQL verileri `portfolio-postgres-data` Docker volume'unda saklanır.
 
 ## Dağıtım
 
