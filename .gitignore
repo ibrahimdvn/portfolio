@@ -1,6 +1,5 @@
 .env
 .env.*
-!.env.example
 node_modules/
 mysql-data/
 .dist/

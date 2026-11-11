@@ -6,7 +6,7 @@
     "node": ">=20.6"
   },
   "scripts": {
-    "start": "node server.js"
+    "start": "node src/server.js"
   },
   "dependencies": {
     "dotenv": "^18.0.10",

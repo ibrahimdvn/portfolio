@@ -1,20 +1,17 @@
 "use strict";
 
-require("dotenv").config();
-
 const http = require("node:http");
 const fs = require("node:fs");
 const path = require("node:path");
 const crypto = require("node:crypto");
+require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
 const database = require("./database");
 
-const ROOT = __dirname;
+const ROOT = path.resolve(__dirname, "../public");
 const PORT = Number(process.env.PORT || 3000);
 const IS_PRODUCTION = process.env.NODE_ENV === "production";
 const SESSION_COOKIE = "icd_admin_session";
 const SESSION_TTL_MS = 30 * 60 * 1000;
-const sessions = new Map();
-const loginAttempts = new Map();
 const PUBLIC_FILES = new Set([
   "app.js", "auth.js", "detay.html", "favicon.svg", "giris.html", "giris.js",
   "i18n.js", "index.html", "logo.svg", "profile-photo.png", "styles.css",
@@ -47,37 +44,17 @@ function cookies(request) {
   return result;
 }
 
-function isAuthenticated(request) {
+async function isAuthenticated(request) {
   const token = cookies(request)[SESSION_COOKIE];
-  const session = token && sessions.get(token);
-  if (!session) return false;
-  if (session.expiresAt <= Date.now()) {
-    sessions.delete(token);
-    return false;
-  }
-  return true;
+  if (!token) return false;
+  const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+  return database.hasAdminSession(tokenHash);
 }
 
 function sameOrigin(request) {
   const origin = request.headers.origin;
   if (!origin) return false;
   try { return new URL(origin).host === request.headers.host; } catch (error) { return false; }
-}
-
-function attemptState(ip) {
-  const now = Date.now();
-  if (loginAttempts.size >= 10000 && !loginAttempts.has(ip)) {
-    for (const [key, value] of loginAttempts) {
-      if (value.resetAt <= now && value.blockedUntil <= now) loginAttempts.delete(key);
-    }
-    while (loginAttempts.size >= 10000) loginAttempts.delete(loginAttempts.keys().next().value);
-  }
-  let state = loginAttempts.get(ip);
-  if (!state || state.resetAt <= now) {
-    state = { count: 0, resetAt: now + 15 * 60 * 1000, blockedUntil: 0 };
-    loginAttempts.set(ip, state);
-  }
-  return state;
 }
 
 async function readJson(request, maxBytes) {
@@ -135,7 +112,8 @@ const server = http.createServer(async function (request, response) {
   catch (error) { sendJson(response, 400, { message: "Geçersiz istek." }); return; }
 
   if (pathname === "/api/session" && request.method === "GET") {
-    sendJson(response, 200, { authenticated: isAuthenticated(request) });
+    try { sendJson(response, 200, { authenticated: await isAuthenticated(request) }); }
+    catch (error) { sendJson(response, 503, { message: "Oturum doğrulanamadı." }); }
     return;
   }
 
@@ -147,7 +125,10 @@ const server = http.createServer(async function (request, response) {
 
   if (pathname === "/api/content" && request.method === "PUT") {
     if (!sameOrigin(request)) { sendJson(response, 403, { message: "İstek doğrulanamadı." }); return; }
-    if (!isAuthenticated(request)) { sendJson(response, 401, { message: "İçeriği kaydetmek için yönetici girişi gerekli." }); return; }
+    let authenticated = false;
+    try { authenticated = await isAuthenticated(request); }
+    catch (error) { sendJson(response, 503, { message: "Oturum doğrulanamadı." }); return; }
+    if (!authenticated) { sendJson(response, 401, { message: "İçeriği kaydetmek için yönetici girişi gerekli." }); return; }
     let body;
     try { body = await readJson(request, 2 * 1024 * 1024); }
     catch (error) { sendJson(response, 400, { message: "İçerik okunamadı." }); return; }
@@ -165,39 +146,43 @@ const server = http.createServer(async function (request, response) {
   if (pathname === "/api/login" && request.method === "POST") {
     if (!sameOrigin(request)) { sendJson(response, 403, { message: "İstek doğrulanamadı." }); return; }
     const ip = request.socket.remoteAddress || "unknown";
-    const state = attemptState(ip);
-    if (state.blockedUntil > Date.now()) {
-      const retrySeconds = Math.ceil((state.blockedUntil - Date.now()) / 1000);
-      sendJson(response, 429, { message: "Çok fazla başarısız deneme yapıldı. Bir süre sonra yeniden dene." }, { "Retry-After": String(retrySeconds) });
-      return;
-    }
+    const ipHash = crypto.createHash("sha256").update(ip).digest("hex");
+    try {
+      if (await database.isLoginBlocked(ipHash)) {
+        sendJson(response, 429, { message: "Çok fazla başarısız deneme yapıldı. Bir süre sonra yeniden dene." }, { "Retry-After": "900" });
+        return;
+      }
+    } catch (error) { sendJson(response, 503, { message: "Giriş veritabanına erişilemedi." }); return; }
     let body;
     try { body = await readJson(request); }
     catch (error) { sendJson(response, 400, { message: "Giriş bilgileri okunamadı." }); return; }
     const username = typeof body.username === "string" ? body.username.trim() : "";
     const password = typeof body.password === "string" ? body.password : "";
     if (username.length > 64 || password.length > 1024) {
-      state.count += 1;
-      if (state.count >= 5) state.blockedUntil = Date.now() + 15 * 60 * 1000;
-      sendJson(response, state.blockedUntil ? 429 : 401, { message: "Kullanıcı adı veya şifre hatalı. Yeniden dene." });
+      let result;
+      try { result = await database.recordLoginFailure(ipHash); }
+      catch (error) { sendJson(response, 503, { message: "Giriş veritabanına erişilemedi." }); return; }
+      sendJson(response, result.blocked ? 429 : 401, { message: "Kullanıcı adı veya şifre hatalı. Yeniden dene." }, result.blocked ? { "Retry-After": String(result.retryAfter) } : {});
       return;
     }
     let valid = false;
     try { valid = await database.verifyAdmin(username, password); }
     catch (error) { sendJson(response, 503, { message: "Giriş veritabanına erişilemedi." }); return; }
     if (!valid) {
-      state.count += 1;
-      if (state.count >= 5) state.blockedUntil = Date.now() + 15 * 60 * 1000;
-      sendJson(response, state.blockedUntil ? 429 : 401, {
-        message: state.blockedUntil ? "Çok fazla başarısız deneme yapıldı. Bir süre sonra yeniden dene." : "Kullanıcı adı veya şifre hatalı. Yeniden dene."
-      });
+      let result;
+      try { result = await database.recordLoginFailure(ipHash); }
+      catch (error) { sendJson(response, 503, { message: "Giriş veritabanına erişilemedi." }); return; }
+      sendJson(response, result.blocked ? 429 : 401, {
+        message: result.blocked ? "Çok fazla başarısız deneme yapıldı. Bir süre sonra yeniden dene." : "Kullanıcı adı veya şifre hatalı. Yeniden dene."
+      }, result.blocked ? { "Retry-After": String(result.retryAfter) } : {});
       return;
     }
-    loginAttempts.delete(ip);
-    // Keep one administrator session active across all browsers and devices.
-    sessions.clear();
+    try { await database.clearLoginFailures(ipHash); }
+    catch (error) { sendJson(response, 503, { message: "Oturum başlatılamadı." }); return; }
     const token = crypto.randomBytes(32).toString("base64url");
-    sessions.set(token, { expiresAt: Date.now() + SESSION_TTL_MS });
+    const expiresAt = Date.now() + SESSION_TTL_MS;
+    try { await database.saveAdminSession(crypto.createHash("sha256").update(token).digest("hex"), expiresAt); }
+    catch (error) { sendJson(response, 503, { message: "Oturum başlatılamadı." }); return; }
     const cookie = SESSION_COOKIE + "=" + token + "; Path=/; HttpOnly; SameSite=Strict; Max-Age=" + Math.floor(SESSION_TTL_MS / 1000) + (production ? "; Secure" : "");
     sendJson(response, 200, { authenticated: true }, { "Set-Cookie": cookie });
     return;
@@ -206,16 +191,25 @@ const server = http.createServer(async function (request, response) {
   if (pathname === "/api/logout" && request.method === "POST") {
     if (!sameOrigin(request)) { sendJson(response, 403, { message: "İstek doğrulanamadı." }); return; }
     const token = cookies(request)[SESSION_COOKIE];
-    if (token) sessions.delete(token);
+    if (token) {
+      const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+      try { await database.deleteAdminSession(tokenHash); }
+      catch (error) { sendJson(response, 503, { message: "Oturum kapatılamadı." }); return; }
+    }
     const cookie = SESSION_COOKIE + "=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0" + (production ? "; Secure" : "");
     sendJson(response, 200, { authenticated: false }, { "Set-Cookie": cookie });
     return;
   }
 
-  if (pathname === "/yonetim.html" && !isAuthenticated(request)) {
-    response.writeHead(302, { Location: "/giris.html?next=yonetim.html", "Cache-Control": "no-store" });
-    response.end();
-    return;
+  if (pathname === "/yonetim.html") {
+    let authenticated = false;
+    try { authenticated = await isAuthenticated(request); }
+    catch (error) { sendJson(response, 503, { message: "Oturum doğrulanamadı." }); return; }
+    if (!authenticated) {
+      response.writeHead(302, { Location: "/giris.html?next=yonetim.html", "Cache-Control": "no-store" });
+      response.end();
+      return;
+    }
   }
 
   if (request.method !== "GET" && request.method !== "HEAD") {
